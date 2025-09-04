@@ -1,0 +1,4 @@
+faire un lissage pour éviter que ca tremble
+mettre des couleurs
+mettre un logarithme pour que mieux afficher certaines frequences
+essayer de prendre l'ampli max plutot que la moyenne pour chaque barre
