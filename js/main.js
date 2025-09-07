@@ -3,8 +3,8 @@ import { extractSoudData, updateCanvas } from "./logic.js";
 const canvas = document.getElementById("barCanvas")
 const ctx = canvas.getContext('2d')
 
-canvas.width= window.innerWidth - 100
-canvas.height = window.innerHeight - 100
+canvas.width= window.innerWidth - 150
+canvas.height = window.innerHeight - 150
 
 const startButton = document.getElementById("startButton")
 startButton.addEventListener('click', ()=>{

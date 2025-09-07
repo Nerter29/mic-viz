@@ -1,8 +1,8 @@
 
 
 export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, audioCtx, analyser, barNumber){
-    canvas.width= window.innerWidth - 100
-    canvas.height = window.innerHeight - 100
+    canvas.width= window.innerWidth - 150
+    canvas.height = window.innerHeight - 150
 
     analyser.getByteFrequencyData(frequencyData);
 
@@ -24,17 +24,17 @@ export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, a
         let i1 = Math.floor(f1 / hzPerBin);
         let i2 = Math.floor(f2 / hzPerBin);
 
-        //to ensure that is frequences are not out of bounds
+        //to ensure that the frequences are not out of bounds
         if (i1 < 0) i1 = 0;
         if (i2 >= frequencyData.length) i2 = frequencyData.length - 1;
 
+        //average Amplitude for each bars
         let sum = 0;
         for (let j = i1; j <= i2; j++) {
             sum += frequencyData[j];
         }
         sum /= i2 - i1
-
-
+        
         bars.push(sum);
     }
 
@@ -66,10 +66,15 @@ export function updateCanvas(canvas, ctx, bars){
             let h = (bars[k] / maxAmplitude) * cHeight
 
             let y = cHeight - h
-
+            ctx.fillStyle = rainbowColors(bars[k] /maxAmplitude, k/ bars.length, 100, 250, 10, 50)
             ctx.fillRect(x, y, w, h)
             x += barWidth + separation
 
         }
     }
+}
+function rainbowColors(heightProportion, positionProportion, startH, endH, startIntensity, shininess){
+    //get the color of a bar ased on its height and position
+    const hue = (startH - positionProportion * (startH - endH)) % 360;
+    return `hsl(${hue}, ${shininess}%, ${heightProportion * (50- startIntensity) + startIntensity}%`
 }
