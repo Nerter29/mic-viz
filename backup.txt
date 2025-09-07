@@ -1,0 +1,31 @@
+export function extractSoudData(canvas, frequencyData, minHz, maxFreq, audioCtx, analyser, barNumber){
+    canvas.width= window.innerWidth - 100
+    canvas.height = window.innerHeight - 100
+
+    analyser.getByteFrequencyData(frequencyData);
+    let currentBar = 0
+    let n = Math.floor(maxFreq / (audioCtx.sampleRate / analyser.fftSize));
+    let bars = [0]
+
+    let step = Math.floor(n / barNumber)
+    n -= n%step
+    let binCounter = 0
+
+    
+    for(let i =0; i < n; i++){
+        bars[currentBar] += frequencyData[i]
+        binCounter ++
+        if(binCounter == step){
+            binCounter = 0
+
+            bars[currentBar] /= step     
+
+            currentBar ++;
+            if(i != n -1){
+                bars.push(0)
+            }
+        }
+    }
+
+    return bars
+}

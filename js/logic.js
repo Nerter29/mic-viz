@@ -1,36 +1,46 @@
 
-export function extractSoudData(canvas, frequencyData, maxFreq, audioCtx, analyser, barNumber){
+
+export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, audioCtx, analyser, barNumber){
     canvas.width= window.innerWidth - 100
     canvas.height = window.innerHeight - 100
 
-
     analyser.getByteFrequencyData(frequencyData);
-    let currentBar = 0
-    let n = Math.floor(maxFreq / (audioCtx.sampleRate / analyser.fftSize));
-    let bars = [0]
 
-    let step = Math.floor(n / barNumber)
-    n -= n%step
-    let binCounter = 0
+    let bars = []
+    const hzPerBin = audioCtx.sampleRate / analyser.fftSize;
+    for (let i = 0; i < barNumber; i++) {
+        const barProp = (i / barNumber);
+        const nextBarProp = ((i + 1) / barNumber); //proportions of the current bar based on total bars
 
-    for(let i =0; i < n; i++){
-        bars[currentBar] += frequencyData[i]
-        binCounter ++
-        if(binCounter == step){
-            binCounter = 0
+        //logarithmic and linear bin repartition.
+        const f1Log = minHz * Math.pow(maxHz / minHz, barProp);
+        const f2Log = minHz * Math.pow(maxHz / minHz, nextBarProp);
+        const f1Lin = minHz + (maxHz - minHz) * barProp;
+        const f2Lin = minHz + (maxHz - minHz) * nextBarProp;
+        const f1 = f1Lin * (1 - logFactor) + f1Log * logFactor;
+        const f2 = f2Lin * (1 - logFactor) + f2Log * logFactor;
 
-            bars[currentBar] /= step     
+        //fft format
+        let i1 = Math.floor(f1 / hzPerBin);
+        let i2 = Math.floor(f2 / hzPerBin);
 
-            currentBar ++;
-            if(i != n -1){
-                bars.push(0)
-            }
+        //to ensure that is frequences are not out of bounds
+        if (i1 < 0) i1 = 0;
+        if (i2 >= frequencyData.length) i2 = frequencyData.length - 1;
+
+        let sum = 0;
+        for (let j = i1; j <= i2; j++) {
+            sum += frequencyData[j];
         }
-    }
-    //console.log(bars)
-    return bars
+        sum /= i2 - i1
 
+
+        bars.push(sum);
+    }
+
+    return bars
 }
+
 
 export function updateCanvas(canvas, ctx, bars){
     let cHeight = canvas.height
@@ -42,7 +52,7 @@ export function updateCanvas(canvas, ctx, bars){
     }
     let barWidth = (cWidth - separation * (barsN * 2 + 1)) / (barsN * 2)
 
-    let maxAmplitude = 500
+    let maxAmplitude = 250
     ctx.clearRect( 0, 0, canvas.width, canvas.height);
     let x = separation
 

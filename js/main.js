@@ -13,8 +13,10 @@ startButton.addEventListener('click', ()=>{
 
 
 export async function startMic(canvas, ctx) {
-  let barNumber = 32
-  const maxFreq = 18000;
+  let barNumber = 24
+  const minFreq = 50
+  const maxFreq = 10000;
+  const logFactor = 0.4
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const source = audioCtx.createMediaStreamSource(stream);
@@ -25,7 +27,7 @@ export async function startMic(canvas, ctx) {
   const frequencyData = new Uint8Array(analyser.frequencyBinCount);
   function update() {
 
-    let bars = extractSoudData(canvas, frequencyData, maxFreq, audioCtx, analyser, barNumber)
+    let bars = extractSoudData(canvas, frequencyData, minFreq, maxFreq, logFactor, audioCtx, analyser, barNumber)
     updateCanvas(canvas, ctx, bars)
     requestAnimationFrame(update);
   }
