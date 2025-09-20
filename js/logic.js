@@ -1,9 +1,12 @@
 
 
-export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, audioCtx, analyser,
+export function extractSoudData(canvas, xMargin, yMargin, frequencyData, minHz, maxHz,logFactor, audioCtx, analyser,
     barNumber){
-    canvas.width= window.innerWidth - 50
-    canvas.height = window.innerHeight - 80
+    /*extract the data of the sound to make the amplitude of every sections of frequences by following logarithmic
+    and linear evolution*/
+
+    canvas.width= window.innerWidth - xMargin
+    canvas.height = window.innerHeight - yMargin
 
     analyser.getByteFrequencyData(frequencyData);
 
@@ -12,7 +15,7 @@ export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, a
 
     for (let i = 0; i < barNumber; i++) {
         const barProp = (i / barNumber);
-        const nextBarProp = ((i + 1) / barNumber); //proportions of the current bar based on total amplitudes
+        const nextBarProp = ((i + 1) / barNumber); //proportions of the current section based on total amplitudes
 
         //logarithmic and linear bin repartition.
         const f1Log = minHz * Math.pow(maxHz / minHz, barProp);
@@ -30,7 +33,7 @@ export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, a
         if (i1 < 0) i1 = 0;
         if (i2 >= frequencyData.length) i2 = frequencyData.length - 1;
 
-        //average Amplitude for each amplitudes
+        //average amplitude for each section
         let sum = 0;
         for (let j = i1; j <= i2; j++) {
             sum += frequencyData[j];
@@ -45,45 +48,50 @@ export function extractSoudData(canvas, frequencyData, minHz, maxHz,logFactor, a
 }
 
 
-export function updateCanvas(canvas, ctx, amplitudes, maxAmplitude, bars, barAcceleration){
+export function updateCanvas(canvas, ctx, amplitudes, maxAmplitude, barSeparation, bars, barAcceleration, startHue, endHue, startIntensity, shininess){
+    /*take the amplitudes list and display the corresponding bars and adding a little acceleration process
+    to smooth the bar movement*/
+    ctx.clearRect( 0, 0, canvas.width, canvas.height);
+
     let cHeight = canvas.height
     let cWidth = canvas.width
-    let amplitudesN = amplitudes.length;
-    let separation = 2;
-    if(window.innerWidth < 1000){
-        separation = 1
-    }
-    let barWidth = (cWidth - separation * (amplitudesN * 2 + 1)) / (amplitudesN * 2)
+    let sectionNumber = amplitudes.length;
+    
 
-    ctx.clearRect( 0, 0, canvas.width, canvas.height);
-    let x = separation
+    if(window.innerWidth < 1000){barSeparation /= 2}
+    let barWidth = (cWidth - barSeparation * (sectionNumber * 2 + 1)) / (sectionNumber * 2)
 
     bars = updateBars(amplitudes, bars, barAcceleration)
+
     for(let j = 0; j < 2; j++){
         for(let i = 0; i < bars.length; i++){
+            
+            //display the bars first in reverse, then normally so it matchs the patern : high low low high
             let k = i
-            if(j == 0){
-                k = bars.length - i - 1
-            }
+            if(j == 0){k = bars.length - i - 1}
+
+            //calculate the position and size of every bras
             let w = barWidth
             let h = (bars[k] / maxAmplitude) * cHeight
-
+            let x = (barWidth + barSeparation) * (i + j * bars.length)
             let y = cHeight - h
-            ctx.fillStyle = rainbowColors(bars[k] / maxAmplitude, k / bars.length, 100, 300, 5, 50)
-            ctx.fillRect(x, y, w, h)
-            x += barWidth + separation
 
+            //display the bars and applying some cool colors
+            ctx.fillStyle = rainbowColors(bars[k] / maxAmplitude, k / bars.length, startHue, endHue,
+            startIntensity, shininess)
+            ctx.fillRect(x, y, w, h)
         }
     }
 }
 function updateBars(amplitudes, bars, acceleration){
+    //create the bars list from the amplitude one by adding bars a little of acceleration principle so it is smooth
     for(let i = 0; i < amplitudes.length; i++){
         bars[i] += (amplitudes[i] - bars[i]) * acceleration
     }
     return bars
 }
-function rainbowColors(heightProportion, positionProportion, startH, endH, startIntensity, shininess){
-    //get the color of a bar ased on its height and position
-    const hue = (startH - positionProportion * (startH - endH)) % 360;
-    return `hsl(${hue}, ${shininess}%, ${heightProportion * (50- startIntensity) + startIntensity}%`
+function rainbowColors(heightProportion, positionProportion, startHue, endHue, startIntensity, shininess){
+    //get the color of a bar based on its height and position
+    const hue = (startHue - positionProportion * (startHue - endHue)) % 360;
+    return `hsl(${hue}, ${shininess}%, ${heightProportion * (50 - startIntensity) + startIntensity}%`
 }
