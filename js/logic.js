@@ -72,7 +72,7 @@ export function updateCanvas(canvas, ctx, amplitudes, amplitudeOffset, maxAmplit
 
             //calculate the position and size of every bras
             let w = barWidth
-            let h = (bars[k] / maxAmplitude) * cHeight - amplitudeOffset
+            let h = (bars[k] / maxAmplitude) * cHeight - amplitudeOffset + 5 // 5 is the min length for a bar
             let x = (barWidth + barSeparation) * (i + j * bars.length)
             let y = cHeight - h
 

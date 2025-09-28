@@ -19,7 +19,7 @@ export async function startMic(canvas, ctx) {
   const minFreq = 50
   const maxFreq = 8000;
   const maxAmplitude = 350
-  const amplitudeOffset = 50;
+  const amplitudeOffset = 0;
 
   const logFactor = 0.5
   const barAcceleration = 0.25
