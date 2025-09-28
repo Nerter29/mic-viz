@@ -18,14 +18,15 @@ export async function startMic(canvas, ctx) {
   let barNumber = 24
   const minFreq = 50
   const maxFreq = 8000;
-  const maxAmplitude = 300
+  const maxAmplitude = 350
+  const amplitudeOffset = 50;
 
   const logFactor = 0.5
   const barAcceleration = 0.25
   let barSeparation = 2;
 
   //color
-  const startHue = 100
+  const startHue = 180
   const endHue = 300
   const startIntensity= 5
   const shininess = 50
@@ -47,7 +48,7 @@ export async function startMic(canvas, ctx) {
     amplitudes = extractSoudData(canvas, xMargin, yMargin, frequencyData, minFreq, maxFreq, logFactor,
     audioCtx, analyser, barNumber)
 
-    updateCanvas(canvas, ctx, amplitudes, maxAmplitude, barSeparation, bars, barAcceleration,
+    updateCanvas(canvas, ctx, amplitudes, amplitudeOffset, maxAmplitude, barSeparation, bars, barAcceleration,
     startHue, endHue, startIntensity, shininess)
 
     requestAnimationFrame(update);

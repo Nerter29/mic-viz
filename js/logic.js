@@ -48,7 +48,7 @@ export function extractSoudData(canvas, xMargin, yMargin, frequencyData, minHz, 
 }
 
 
-export function updateCanvas(canvas, ctx, amplitudes, maxAmplitude, barSeparation, bars, barAcceleration, startHue, endHue, startIntensity, shininess){
+export function updateCanvas(canvas, ctx, amplitudes, amplitudeOffset, maxAmplitude, barSeparation, bars, barAcceleration, startHue, endHue, startIntensity, shininess){
     /*take the amplitudes list and display the corresponding bars and adding a little acceleration process
     to smooth the bar movement*/
     ctx.clearRect( 0, 0, canvas.width, canvas.height);
@@ -72,7 +72,7 @@ export function updateCanvas(canvas, ctx, amplitudes, maxAmplitude, barSeparatio
 
             //calculate the position and size of every bras
             let w = barWidth
-            let h = (bars[k] / maxAmplitude) * cHeight
+            let h = (bars[k] / maxAmplitude) * cHeight - amplitudeOffset
             let x = (barWidth + barSeparation) * (i + j * bars.length)
             let y = cHeight - h
 
